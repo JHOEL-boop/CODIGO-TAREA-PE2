@@ -1,0 +1,37 @@
+import tracemalloc
+import gc
+
+def crear_lista():
+    lista = [i for i in range(1000000)]  # Crear una lista con un millón de elementos
+    return lista
+
+# Iniciar monitoreo de memoria
+tracemalloc.start()
+
+# Tomar una instantánea antes de crear la lista
+inicio = tracemalloc.take_snapshot()
+
+# Crear una gran estructura de datos
+mi_lista = crear_lista()
+
+# Tomar una instantánea después de crear la lista
+final = tracemalloc.take_snapshot()
+
+# Comparar el uso de memoria
+diferencias = final.compare_to(inicio, 'lineno')
+
+print("Diferencias en uso de memoria:")
+for linea in diferencias[:5]:
+    print(linea)
+
+# Eliminar la lista y forzar la recolección de basura
+del mi_lista
+gc.collect()
+
+# Tomar una nueva instantánea tras liberar la memoria
+post_gc = tracemalloc.take_snapshot()
+diferencias_post_gc = post_gc.compare_to(final, 'lineno')
+
+print("\nMemoria liberada tras recolección de basura:")
+for linea in diferencias_post_gc[:5]:
+    print(linea)
